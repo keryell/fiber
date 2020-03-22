@@ -1,3 +1,4 @@
+#include <iostream>
 //          Copyright Oliver Kowalke 2013.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -50,10 +51,14 @@ public:
     friend void intrusive_ptr_add_ref( algorithm * algo) noexcept {
         BOOST_ASSERT( nullptr != algo);
         algo->use_count_.fetch_add( 1, std::memory_order_relaxed);
+std::cout << "algorithm:intrusive_ptr_add_ref:use_count_ = "
+          << algo->use_count_ << std::endl;
     }
 
     friend void intrusive_ptr_release( algorithm * algo) noexcept {
         BOOST_ASSERT( nullptr != algo);
+std::cout << "algorithm:intrusive_ptr_release:use_count_ = "
+          << algo->use_count_ << std::endl;
         if ( 1 == algo->use_count_.fetch_sub( 1, std::memory_order_release) ) {
             std::atomic_thread_fence( std::memory_order_acquire);
             delete algo;

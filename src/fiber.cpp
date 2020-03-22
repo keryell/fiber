@@ -23,6 +23,7 @@ namespace fibers {
 void
 fiber::start_() noexcept {
     context * ctx = context::active();
+std::cout << "fiber::start_() with context " << &*impl_ << std::endl;
     ctx->attach( impl_.get() );
     switch ( impl_->get_policy() ) {
     case launch::post:
@@ -57,6 +58,7 @@ fiber::join() {
 
 void
 fiber::detach() {
+std::cout << "fiber::detach() from context " << &*impl_ << std::endl;
     if ( BOOST_UNLIKELY( ! joinable() ) ) {
         throw fiber_error{ std::make_error_code( std::errc::invalid_argument),
                            "boost fiber: fiber not joinable" };

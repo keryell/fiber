@@ -391,15 +391,21 @@ public:
     friend void intrusive_ptr_add_ref( context * ctx) noexcept {
         BOOST_ASSERT( nullptr != ctx);
         ctx->use_count_.fetch_add( 1, std::memory_order_relaxed);
+std::cout << "context::intrusive_ptr_add_ref() " << ctx
+          << " use_count_ = " << ctx->use_count_ << std::endl;
     }
 
     friend void intrusive_ptr_release( context * ctx) noexcept {
         BOOST_ASSERT( nullptr != ctx);
+std::cout << "context::intrusive_ptr_release() " << ctx
+          << " use_count_ = " << ctx->use_count_ << std::endl;
         if ( 1 == ctx->use_count_.fetch_sub( 1, std::memory_order_release) ) {
             std::atomic_thread_fence( std::memory_order_acquire);
             boost::context::fiber c = std::move( ctx->c_);
             // destruct context
             ctx->~context();
+std::cout << "context::intrusive_ptr_release() " << ctx
+          << " context destructed" << std::endl;
             // deallocated stack
             std::move( c).resume();
         }

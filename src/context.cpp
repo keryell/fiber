@@ -50,7 +50,7 @@ public:
 };
 
 static intrusive_ptr< context > make_dispatcher_context() {
-    default_stack salloc; // use default satck-size
+    default_stack salloc; // use default stack-size
     auto sctx = salloc.allocate();
     // reserve space for control structure
     void * storage = reinterpret_cast< void * >(
@@ -74,6 +74,8 @@ struct context_initializer {
         if ( 0 == counter_++) {
             // main fiber context of this thread
             context * main_ctx = new main_context{};
+std::cout << "context_initializer() create main thread context "
+          << main_ctx << std::endl;
             // scheduler of this thread
             auto sched = new scheduler{};
             // attach main context to scheduler
@@ -90,6 +92,8 @@ struct context_initializer {
             context * main_ctx = active_;
             BOOST_ASSERT( main_ctx->is_context( type::main_context) );
             scheduler * sched = main_ctx->get_scheduler();
+std::cout << "~context_initializer() delete main thread context "
+          << main_ctx << std::endl;
             delete sched;
             delete main_ctx;
         }
@@ -233,6 +237,7 @@ boost::context::fiber
 context::terminate() noexcept {
     // protect for concurrent access
     std::unique_lock< detail::spinlock > lk{ splk_ };
+std::cout << "context::terminate() " << this << std::endl;
     // mark as terminated
     terminated_ = true;
     // notify all waiting fibers
